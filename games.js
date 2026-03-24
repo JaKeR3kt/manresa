@@ -336,14 +336,25 @@ function generateMunicipisQuestion(targetMunicipi, diff) {
   const comarca = gameComarcaFilter;
   const allMunicipis = COMARQUES[comarca].municipis;
 
-  // Generate multiple choice (4 options)
+  // 1 correct + 3 distractors from OTHER comarques
   let options = [targetMunicipi];
-  const others = allMunicipis.filter(m => m !== targetMunicipi);
-  while (options.length < Math.min(4, allMunicipis.length)) {
-    const rand = others[Math.floor(Math.random() * others.length)];
-    if (!options.includes(rand)) options.push(rand);
+  // Collect all municipis from other comarques
+  let otherMunicipis = [];
+  Object.entries(COMARQUES).forEach(function(entry) {
+    if (entry[0] !== comarca) {
+      entry[1].municipis.forEach(function(m) {
+        otherMunicipis.push(m);
+      });
+    }
+  });
+  // Shuffle and pick 3 unique distractors
+  otherMunicipis.sort(function() { return Math.random() - 0.5; });
+  for (var i = 0; i < otherMunicipis.length && options.length < 4; i++) {
+    if (!options.includes(otherMunicipis[i])) {
+      options.push(otherMunicipis[i]);
+    }
   }
-  options.sort(() => Math.random() - 0.5);
+  options.sort(function() { return Math.random() - 0.5; });
 
   let hintsHtml = '';
   if (diff.showHint1) {
